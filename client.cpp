@@ -25,7 +25,7 @@ int port = 7777;
 
 void validateRole(int validRole, char (&buffer)[1024], int &role)
 {
-    while (validRole == 0)
+    do
     {
         if (strcmp(buffer, "general") == 0)
         {
@@ -44,11 +44,16 @@ void validateRole(int validRole, char (&buffer)[1024], int &role)
         }
         else
         {
-            printf("Unvalid role was chosen. Please enter again your role:\n");
+            printf("Unvalid role has been chosen. Please enter again your role:\n");
             bzero(buffer, 1024);
-            read(0, buffer, 1024);
         }
-    }
+        if(validRole == 0)
+        {
+            fflush(stdout);
+            scanf("%s", buffer); // cin role
+        }
+    }while (validRole == 0);
+
 }
 
 void availRole(char (&buffer)[1024], int &role, int sd)
@@ -67,7 +72,9 @@ void availRole(char (&buffer)[1024], int &role, int sd)
             read(sd, buffer, 1024); // get the answer
         }
         else
+        {
             valid = 1;
+        }
     }
 }
 
@@ -99,32 +106,34 @@ int main(int argc, char *argv[])
     server.sin_port = htons(port);
     server.sin_addr.s_addr = inet_addr(argv[1]);
 
+    bzero(buffer, 1024);
+    printf("Who are you, stranger?\n");
+    fflush(stdout);
+    scanf("%s", buffer); // cin role
+    validateRole(0, buffer, role);
+
     if (connect(sd, (struct sockaddr *)&server, sizeof(struct sockaddr)) == -1)
     {
         perror("[-]Error at connection.\n");
         return errno;
     }
-
-    bzero(buffer, 1024);
-    printf("Who are you, stranger?\n");
-    fflush(stdout);
-    read(0, buffer, 1024); // cin role
-    validateRole(0, buffer, role);
-
     if ((write(sd, buffer, 1024)) == -1) //send role
     {
         perror("[-] Error at sending to the server.\n");
         return errno;
     }
+                                                                                                                                cout<<"have sent "<<buffer<<endl;
 
     bzero(buffer, 1024);
     read(sd, buffer, 1024); // get response
+                                                                                                                                cout<<"receivedthe answer"<<endl;
 
     availRole(buffer, role, sd); // check if the response was good
                                  // at this point a role has been assigned to the client
 
     if (role == 1) // commander
     {
+                                                                                                                                                    cout<<"in commander "<<role<<endl;
         do
         {
             bzero(buffer, 1024);
@@ -151,6 +160,7 @@ int main(int argc, char *argv[])
                     bzero(buffer, 1024);
                     fflush(stdout);
                     buffer[0] = wins + '0';
+                                                                                                                                                        cout<<"after win: "<<buffer<<endl;
                     write(sd, buffer, 1024); // sned the role as the number of wins
                 }
             }
@@ -159,6 +169,7 @@ int main(int argc, char *argv[])
 
     else if (role == 2) // wrrz
     {
+                                                                                                                                                    cout<<"in wrrz "<<role<<endl;
         if(strcmp(buffer, "0") == 0)
             printf("You have done your undespicable duty. You have attacked a human Commander but you have run away before you could see the damage you have done... Despiteful...\n");
         else if(strcmp(buffer, "2") == 0)
@@ -169,8 +180,10 @@ int main(int argc, char *argv[])
 
     else //general
     {
-        int alive = 3;
+                                                                                                                                                                    cout<<"is general role"<<role<<endl; 
 
+        int alive = 3;
+        int line=1;
         while (alive)
         {
             bzero(buffer, 1024);
@@ -178,11 +191,14 @@ int main(int argc, char *argv[])
 
             if (strcmp(buffer, "fall") == 0)
             {
-                printf("The Wrrz have won, general! We are overnumbered! Perhaps a new hope will emerge from the human race once again in the future to save us...\n");
+                printf("Line %d: The Wrrz have won, general! We are overnumbered! Perhaps a new hope will emerge from the human race once again in the future to save us...\n", line);
                 break;
             }
             else 
-                printf("%s", buffer);
+            {
+                printf("Line %d: %s", line, buffer);
+                line++;
+            }
         }
     }
 
