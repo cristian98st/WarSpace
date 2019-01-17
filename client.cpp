@@ -56,7 +56,7 @@ void availRole(char (&buffer)[1024], int &role, int sd)
     int valid = 0;
     while (valid == 0)
     {
-        if (strcmp(buffer, "1") != 0 && strcmp(buffer, "2") != 0 && strcmp(buffer, "3") != 0)
+        if (strcmp(buffer, "1") != 0 && strcmp(buffer, "2") != 0 && strcmp(buffer, "3") != 0 && strcmp(buffer, "0") != 0)
         {
             printf("%s\n", buffer);
             bzero(buffer, 1024);
@@ -122,7 +122,8 @@ int main(int argc, char *argv[])
 
     availRole(buffer, role, sd); // check if the response was good
                                  // at this point a role has been assigned to the client
-    if (role == 1)               // commander
+
+    if (role == 1) // commander
     {
         do
         {
@@ -142,7 +143,8 @@ int main(int argc, char *argv[])
                     wins++;
                     if (wins > 2)
                         printf("Congratsulations! You have won your %d fight against the hideous Wrrz. You are a champion!", wins);
-                    printf("Congratsulations! You have won your %d fight against the hideous Wrrz.", wins);
+                    else
+                        printf("Congratsulations! You have won your %d fight against the hideous Wrrz.", wins);
                     connect(sd, (struct sockaddr *)&server, sizeof(struct sockaddr));
                     bzero(buffer, 1024);
                     fflush(stdout);
@@ -150,24 +152,25 @@ int main(int argc, char *argv[])
                     write(sd, buffer, 1024); // sned the role as the number of wins
                 }
             }
-        } while (strcmp(buffer, "fight") == 0);
+        } while (strcmp(buffer, "fight") != 0);
     }
 
     else if (role == 2) // wrrz
     {
-        printf("You have done your undespicable duty. You have attacked the enemy human fleet but you have run away before you could see the damage you have done... Despiteful...\n");
+        printf("You have done your undespicable duty. You have attacked the human starbase but you have run away before you could see the damage you have done... Despiteful...\n");
     }
 
     else //general
     {
-        int alive=3;
+        int alive = 3;
 
-        while(alive)
+        while (alive)
         {
             bzero(buffer, 1024);
             read(sd, buffer, 1024);
 
-            if();
+            if ()
+                ;
         }
     }
 
