@@ -310,7 +310,6 @@ int main()
                             read(generalSocket[0], generalmsg, 1024);
                             if (strcmp(generalmsg, "fall") == 0)
                             {
-                                strcpy(generalmsg, "The Wrrz have won, general! We are overnumbered! Perhaps a new hope will emerge from the human race once again to save us...\n");
                                 write(sockfd, generalmsg, 1024);
                                 alive = 0;
                             }
@@ -346,7 +345,13 @@ int main()
                 }
                 else if ((strcmp(client_role, "wrrz")) == 0) // is wrrz
                 {
-                    write(sockfd, buffer, 1024);
+                    if(strcmp(buffer, "0") !=0 && strcmp(buffer, "2") !=0 && strcmp(buffer, "3") !=0)
+                        write(sockfd, buffer, 1024);
+                    else 
+                    {
+                        write(sockfd, buffer, 1024);
+                        break;          
+                    }
                 }
             }
         }

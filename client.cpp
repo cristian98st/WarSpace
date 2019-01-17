@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
                 fightResult = rand() % 101;
                 if (fightResult % 2 == 0)
                 {
-                    printf("Shields are down! Auxiliar shields are inoperative. Critical damage! Abandon the ship! \n You have died on duty!\n");
+                    printf("Shields are down! Auxiliar shields are inoperative. Critical damage! Abandon the ship! \n You have died on duty as a hero!\n");
                     return 0;
                 }
                 else
@@ -143,6 +143,8 @@ int main(int argc, char *argv[])
                     wins++;
                     if (wins > 2)
                         printf("Congratsulations! You have won your %d fight against the hideous Wrrz. You are a champion!", wins);
+                    else if(wins > 4)
+                        printf("Wow, commander! You are an ace in spacefights and a champion of the fleet! This is your %d win!!\n", wins);
                     else
                         printf("Congratsulations! You have won your %d fight against the hideous Wrrz.", wins);
                     connect(sd, (struct sockaddr *)&server, sizeof(struct sockaddr));
@@ -157,7 +159,12 @@ int main(int argc, char *argv[])
 
     else if (role == 2) // wrrz
     {
-        printf("You have done your undespicable duty. You have attacked the human starbase but you have run away before you could see the damage you have done... Despiteful...\n");
+        if(strcmp(buffer, "0") == 0)
+            printf("You have done your undespicable duty. You have attacked a human Commander but you have run away before you could see the damage you have done... Despiteful...\n");
+        else if(strcmp(buffer, "2") == 0)
+            printf("You have done your undespicable duty. You have successfully attacked the human's General from the back... Shame on you...\n");
+        else if(strcmp(buffer, "3") == 0)
+            printf("Ah, you have destroyed the most honorous of the human race, the General himself. They will make you the leader of the pack... this if none of your crew memebers will stab you in the back...\n Hey! Look behind!!... Oh, that's too bad... you have died...\n");
     }
 
     else //general
@@ -169,8 +176,13 @@ int main(int argc, char *argv[])
             bzero(buffer, 1024);
             read(sd, buffer, 1024);
 
-            if ()
-                ;
+            if (strcmp(buffer, "fall") == 0)
+            {
+                printf("The Wrrz have won, general! We are overnumbered! Perhaps a new hope will emerge from the human race once again in the future to save us...\n");
+                break;
+            }
+            else 
+                printf("%s", buffer);
         }
     }
 
