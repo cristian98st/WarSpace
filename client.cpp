@@ -68,8 +68,10 @@ void availRole(char (&buffer)[1024], int &role, int sd)
             read(0, buffer, 0);
             validateRole(0, buffer, role); // is the role existent?
             write(sd, buffer, 1024);       // send it to the server
+                                                                                                                                        cout<<"have sent"<<endl;
             bzero(buffer, 1024);
             read(sd, buffer, 1024); // get the answer
+                                                                                                                                        cout<<"received "<<buffer<<endl;
         }
         else
         {
@@ -126,7 +128,7 @@ int main(int argc, char *argv[])
 
     bzero(buffer, 1024);
     read(sd, buffer, 1024); // get response
-                                                                                                                                cout<<"receivedthe answer"<<endl;
+                                                                                                                                cout<<"received the answer"<<endl;
 
     availRole(buffer, role, sd); // check if the response was good
                                  // at this point a role has been assigned to the client
@@ -138,31 +140,49 @@ int main(int argc, char *argv[])
         {
             bzero(buffer, 1024);
             read(sd, buffer, 1024);
+                                                                                                                                                    cout<<"I've read:"<<buffer<<endl;
             if (strcmp(buffer, "fight") == 0)
             {
+                close(sd);
                 printf("A wrrz spaceship has arrived. We have been ordered to counter-attack it. To battle!\n");
                 fightResult = rand() % 101;
+                                                                                                                                                    cout<<fightResult<<endl;
                 if (fightResult % 2 == 0)
                 {
                     printf("Shields are down! Auxiliar shields are inoperative. Critical damage! Abandon the ship! \n You have died on duty as a hero!\n");
-                    return 0;
+                                                                                                                                                    cout<<"Killed"<<endl;
                 }
                 else
                 {
+                                                                                                                                                    cout<<"Alive"<<endl;
                     wins++;
                     if (wins > 2)
-                        printf("Congratsulations! You have won your %d fight against the hideous Wrrz. You are a champion!", wins);
+                        printf("Congratsulations! You have won your %d fight against the hideous Wrrz. You are a champion!\n", wins);
                     else if(wins > 4)
                         printf("Wow, commander! You are an ace in spacefights and a champion of the fleet! This is your %d win!!\n", wins);
                     else
-                        printf("Congratsulations! You have won your %d fight against the hideous Wrrz.", wins);
-                    connect(sd, (struct sockaddr *)&server, sizeof(struct sockaddr));
+                        printf("Congratsulations! You have won your %d fight against the hideous Wrrz.\n", wins);
+                    
+                    // reconnecting
+                    if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+                    {
+                        perror("[-]Error at socket()\n");
+                        return errno;
+                    }
+                    if (connect(sd, (struct sockaddr *)&server, sizeof(struct sockaddr)) == -1)
+                    {
+                        perror("Error at conection after win.\n");
+                        return errno;
+                    }
                     bzero(buffer, 1024);
                     fflush(stdout);
                     buffer[0] = wins + '0';
+                    write(sd, buffer, 1024); // send the role as the number of wins
                                                                                                                                                         cout<<"after win: "<<buffer<<endl;
-                    write(sd, buffer, 1024); // sned the role as the number of wins
                 }
+                                                                                                                                                        cout<<"after after: "<<buffer<<endl;
+                                                                                                                                                        cout<<role<<endl;
+
             }
         } while (strcmp(buffer, "fight") != 0);
     }

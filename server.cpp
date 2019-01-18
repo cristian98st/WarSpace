@@ -138,10 +138,11 @@ int main()
                 close(generalSocket[0]);
                 close(wrrzSocket[0]);
                 close(commanderSocket[0]);
-
+                
+                // do{
                 if ((read(gameSocket[1], buffer, 1024)) < 0)
                 {
-                    perror("[client] Error at read 1.\n");
+                    perror("[client] Error at read 2.\n");
                     return errno;
                 }
 
@@ -243,13 +244,19 @@ int main()
                 }
                 else if (atoi(buffer) != 0)
                 {
+                                                                                                                                                                                cout<<"Revenire "<<buffer<<endl;
                     bzero(generalmsg, 1024);
                     strcpy(generalmsg, "General! A commander has returned victorious from the battlefield. This is his ");
                     strcat(generalmsg, buffer);
                     strcat(generalmsg, " win!\n");
                     write(generalSocket[1], generalmsg, 1024);
                     noCommander++;
+
+                    write(gameSocket[1], buffer, 1024);
+
+                                                                                                                                                                            cout<<"Wrote to him"<<buffer<<endl<<endl;
                 }
+                // } while(strcmp(buffer, "1") !=0 && strcmp(buffer, "0") != 0 && strcmp(buffer, "2") !=0 && strcmp(buffer, "3") != 0);
         }
     }
     else
@@ -272,12 +279,12 @@ int main()
             }
             else if (roleP == 0) // client's process
             {
+                char client_role[1024];
                 do
                 {
                     close(sockfd);
                     // preprocessing
                     int chosen = 0;
-                    char client_role[1024];
                     close(gameSocket[1]);
                     close(generalSocket[1]);
                     close(wrrzSocket[1]);
@@ -288,6 +295,7 @@ int main()
                         perror("[client] Error at read 1.\n");
                         return errno;
                     }
+                                                                                                                                            cout<<"Pana la urma am citit"<<buffer<<endl;
 
                     strcpy(client_role, buffer);
 
@@ -300,17 +308,15 @@ int main()
                     if (strcmp(client_role, "wrrz") != 0)
                     {
                         bzero(buffer, 1024);
-                                                                                                                                                                    cout<<"buffer: "<<buffer<<endl;
                         if ((read(gameSocket[0], buffer, 1024)) < 0) // read the answer for the chosen role for commander and general
                         {
-                            perror("[client] Error at read 1.\n");
+                            perror("[client] Error at read 3.\n");
                             return errno;
                         }
-                                                                                                                                                                    cout<<"received: "<<buffer<<endl;
                     }
                     else if ((read(wrrzSocket[0], buffer, 1024)) < 0) // read the answer for the chosen role for wrrz
                     {
-                        perror("[client] Error at read 1.\n");
+                        perror("[client] Error at read 4.\n");
                         return errno;
                     }
 
@@ -338,11 +344,10 @@ int main()
                         else // and not accepted
                             write(newSocket, buffer, 1024);
                     }
-                    else if ((strcmp(client_role, "commander")) == 0) // is commander
+                    else if ((strcmp(client_role, "commander")) == 0 || atoi(client_role) !=0 ) // is commander
                     {
                         if (strcmp(buffer, "1") == 0) // and accepted
                         {
-                                                                                                                                                                cout<<"commander, accepted. buffer: "<<buffer<<endl;
                             write(newSocket, buffer, 1024);
                             while (strcmp(buffer, "fight") != 0)
                             {
@@ -350,7 +355,7 @@ int main()
                                 if (strcmp(buffer, "fight") == 0)
                                 {
                                     write(newSocket, buffer, 1024);
-                                    break;
+                                    close(newSocket);
                                 }
                             }
                         }
@@ -371,7 +376,7 @@ int main()
                             break;          
                         }
                     }
-                }while(strcmp(buffer, "1") !=0 && strcmp(buffer, "0") != 0 && strcmp(buffer, "2") !=0 && strcmp(buffer, "3") != 0);
+                }while(strcmp(buffer, "1") !=0 && strcmp(buffer, "0") != 0 && strcmp(buffer, "2") !=0 && strcmp(buffer, "3") != 0 && atoi(client_role) != 0);
                 
                 if (strcmp(buffer, "0") != 0 || strcmp(buffer, "2") !=0 || strcmp(buffer, "3") != 0)
                     break;
